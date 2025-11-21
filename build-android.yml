@@ -1,4 +1,0 @@
-# 3️⃣ تثبيت مكتبات المشروع مع تجاوز تعارض النسخ
-- name: Install dependencies
-  working-directory: ./loan
-  run: npm install --legacy-peer-deps
