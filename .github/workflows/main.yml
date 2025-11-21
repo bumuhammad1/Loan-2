@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches:
-      - main  # تأكد أن هذا هو اسم الفرع الذي تستخدمه
+      - main
 
 jobs:
   build-android:
@@ -13,10 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20"  # أو أي إصدار Node تستخدمه في مشروعك
+          node-version: "20"
 
       - name: Install dependencies
         run: npm install
@@ -24,16 +24,16 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli
 
-      - name: Login to Expo using Token
+      - name: Expo login using token
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: eas login --token $EXPO_TOKEN
 
-      - name: Build Android APK
+      - name: Build APK (production)
         run: eas build --platform android --non-interactive --profile production
 
-      - name: Download built artifact
-        uses: actions/download-artifact@v3
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: ./apk-output
+          path: ./build/*.apk
