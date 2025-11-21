@@ -3,21 +3,16 @@ name: Build Android APK
 on:
   push:
     branches:
-      - main   # غيّر اسم الفرع إذا ليس main
-  workflow_dispatch:
+      - main
 
 jobs:
   build-android:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./Loan-2
-
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
@@ -25,21 +20,10 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Install Expo CLI
-        run: npm install -g eas-cli
-
-      - name: Login to Expo
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: eas login --token $EXPO_TOKEN
+      - name: Expo login
+        uses: expo/expo-github-action@v6
+        with:
+          expo-token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Build Android APK
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: eas build --platform android --profile production --non-interactive
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-apk
-          path: '**/*.apk'
