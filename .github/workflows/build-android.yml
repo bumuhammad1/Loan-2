@@ -3,46 +3,36 @@ name: Build Android APK
 on:
   push:
     branches:
-      - main  # الفرع اللي تستخدمه
+      - main
+  workflow_dispatch:
 
 jobs:
   build-android:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
 
     steps:
-      # 1️⃣ نسخ المشروع
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # 2️⃣ تثبيت Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20"
+          node-version: 20
 
-      # 3️⃣ تثبيت المكتبات مع تجاوز مشاكل peer dependency
       - name: Install dependencies
-        working-directory: ./loan
         run: npm install --legacy-peer-deps
 
-      # 4️⃣ تثبيت EAS CLI
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
+      - name: Setup Expo CLI
+        run: npm install -g expo-cli eas-cli
 
-      # 5️⃣ تسجيل الدخول في Expo باستخدام الـ Token
-      - name: Expo login using token
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: eas login --token $EXPO_TOKEN
-
-      # 6️⃣ بناء APK نسخة production
-      - name: Build APK (production)
-        working-directory: ./loan
+      - name: EAS Build Android APK
         run: eas build --platform android --non-interactive --profile production
 
-      # 7️⃣ رفع APK كـ Artifact على GitHub
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: ./loan/build/*.apk  # تأكد هذا المسار بعد البناء
+          path: ./android/*.apk
